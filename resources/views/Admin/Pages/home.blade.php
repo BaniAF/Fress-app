@@ -106,6 +106,10 @@
                             </dl>
                         </div>
 
+                        <form action="{{route('simpan.firebase')}}" method="post">
+                            @csrf
+                            <button type="submit">Ini Coba Firebase</button>
+                        </form>
                         {{-- countdown --}}
                         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

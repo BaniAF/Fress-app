@@ -8,11 +8,17 @@ use App\Models\Kondisi;
 use App\Models\Peserta;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use App\Providers\Services\firebaseService;
 use Ramsey\Uuid\Type\Time as TypeTime;
 use Spatie\FlareClient\Time\Time as TimeTime;
 
 class AdminController extends Controller
 {
+    protected $database;
+    public function __construct()
+    {
+        $this->database = firebaseService::connect();
+    }
     public function index()
     {
         $dataPeserta = Peserta::all()->unique('nama');
@@ -24,7 +30,23 @@ class AdminController extends Controller
         return view('Admin.Pages.home', compact('dataPeserta', 'dataWaktu', 'dataWaktuPeserta', 'totalPeserta', 'totalKondisi'));
     }
 
+    public function storeFirebase(){
+        $reference = $this->database->getReference('tb_coba');
+        if(!$reference->getSnapshot()->exists()){
+            $reference->set([]);
+        }
 
+        $newData = [
+            rand() => [
+                'id' => rand(),
+                'isi' => 'Mulai',
+            ]
+        ];
+
+        $reference->update($newData);
+        alert()->success('Success', 'Data Tersimpan');
+        return redirect()->back();
+    }
     public function editWaktu(Request $request)
     {
         $idPeserta = $request->participantSelect;
