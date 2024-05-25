@@ -20,33 +20,80 @@ class AdminController extends Controller
         $this->database = firebaseService::connect();
     }
     public function index()
-    {
-        $dataPeserta = Peserta::all()->unique('nama');
-        $totalPeserta = $dataPeserta->count();
-        $dataKondisi = Kondisi::all();
-        $totalKondisi = $dataKondisi->count();
-        $dataWaktu = Time::all();
-        $dataWaktuPeserta = Time::whereIn('id', $dataPeserta->pluck('id_waktu'))->get();
-        return view('Admin.Pages.home', compact('dataPeserta', 'dataWaktu', 'dataWaktuPeserta', 'totalPeserta', 'totalKondisi'));
-    }
+{
+    $dataPeserta = Peserta::all()->unique('nama');
+    $totalPeserta = $dataPeserta->count();
+    $dataKondisi = Kondisi::all();
+    $totalKondisi = $dataKondisi->count();
+    $dataWaktu = Time::all();
+    $idWaktuPeserta = Peserta::pluck('id_waktu');
+    $dataWaktuPeserta = Peserta::whereIn('id_waktu', $idWaktuPeserta)->orderBy('nama')->get();
 
-    public function storeFirebase(){
-        $reference = $this->database->getReference('tb_coba');
-        if(!$reference->getSnapshot()->exists()){
+    return view('Admin.Pages.home', compact('dataPeserta', 'dataWaktu', 'dataWaktuPeserta', 'totalPeserta', 'totalKondisi', 'idWaktuPeserta'));
+}
+
+// public function index()
+// {
+//     // Get distinct participants with their corresponding time names
+//     $dataPeserta = Peserta::select('peserta.nama', 'peserta.id', 'peserta.id_waktu', 'times.nama_waktu')
+//         ->join('times', 'peserta.id_waktu', '=', 'times.id')
+//         ->orderBy('peserta.nama')
+//         ->get()
+//         ->groupBy('nama');
+
+//     // Prepare an array to hold unique participant names and their corresponding id_waktu
+//     $uniquePeserta = [];
+
+//     foreach ($dataPeserta as $nama => $pesertaGroup) {
+//         foreach ($pesertaGroup as $peserta) {
+//             $uniquePeserta[$nama][] = [
+//                 'id' => $peserta->id,
+//                 'id_waktu' => $peserta->id_waktu,
+//                 'nama_waktu' => $peserta->nama_waktu,
+//             ];
+//         }
+//     }
+
+//     // Count the total number of unique participants
+//     $totalPeserta = count($uniquePeserta);
+
+//     // Fetch all data from the Kondisi table
+//     $dataKondisi = Kondisi::all();
+//     $totalKondisi = $dataKondisi->count();
+
+//     // Fetch all data from the Time table
+//     $dataWaktu = Time::all();
+
+//     return view('Admin.Pages.home', compact('uniquePeserta', 'dataWaktu', 'totalPeserta', 'totalKondisi'));
+// }
+
+    public function storeFirebase(Request $request)
+    {
+        $reference = $this->database->getReference('tb_database');
+        if (!$reference->getSnapshot()->exists()) {
             $reference->set([]);
         }
 
-        $newData = [
-            rand() => [
-                'id' => rand(),
-                'isi' => 'Mulai',
-            ]
-        ];
+        if ($request->has('waktuDetik')) {
+            // Jika permintaan memiliki data 'waktuDetik', maka proses sebagai permintaan start
+            $waktuDetik = $request->input('waktuDetik');
+            $newData = [
+                'koneksi' => 'Start',
+                'waktu' => $waktuDetik,
+            ];
+        } else {
+            // Jika tidak, maka proses sebagai permintaan stop
+            $newData = [
+                'koneksi' => 'Stop',
+            ];
+        }
 
         $reference->update($newData);
+
         alert()->success('Success', 'Data Tersimpan');
         return redirect()->back();
     }
+
     public function editWaktu(Request $request)
     {
         $idPeserta = $request->participantSelect;

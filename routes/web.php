@@ -32,7 +32,7 @@ Route::get('/', function () {
 
 // admin page
 Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('auth:web');
-Route::post('/firebase', [AdminController::class, 'storeFirebase'])->name('simpan.firebase')->middleware('auth:web');
+Route::post('/simpan-firebase', [AdminController::class, 'storeFirebase'])->name('simpan.firebase')->middleware('auth:web');
 Route::post('/admin', [AdminController::class, 'editWaktu'])->name('edit.waktu')->middleware('auth:web');
 Route::get('/admin/peserta', [AdminController::class, 'peserta'])->name('admin.peserta')->middleware('auth:web');
 Route::get('/admin/peserta/{pesertaId}/edit', [AdminController::class, 'editpeserta'])->name('admin.peserta.edit')->middleware('auth:web');

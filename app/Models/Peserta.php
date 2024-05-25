@@ -13,11 +13,11 @@ class Peserta extends Model
     protected $table = 'peserta';
     protected $primaryKey = 'id';
     public $incrementing = false;
-    protected $fillable = ['id', 'nama', 'username', 'password','password_lihat', 'alamat', 'email', 'klub', 'posisi',];
+    protected $fillable = ['id', 'nama', 'username', 'password','password_lihat', 'alamat', 'email', 'klub', 'posisi', 'id_waktu'];
 
-    protected $hidden = [
-        'id_waktu'
-    ];
+    // protected $hidden = [
+    //     'id_waktu'
+    // ];
 
     public function waktu()
     {
